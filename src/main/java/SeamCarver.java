@@ -2,6 +2,7 @@ import com.sun.security.jgss.GSSUtil;
 import edu.princeton.cs.algs4.Picture;
 
 import java.util.Arrays;
+import java.util.jar.JarOutputStream;
 
 public class SeamCarver {
     private Picture p;
@@ -9,6 +10,7 @@ public class SeamCarver {
     private int height;
     private double[][] egrid;
     private final int BORDERENERGY = 1000;
+    private boolean isTransposed;
 
     // create a seam carver object based on the given picture
     // x= col y = row
@@ -18,13 +20,13 @@ public class SeamCarver {
         width = p.width();
         height = p.height();
         egrid = new double[width][height];
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 egrid[x][y] = energy(x, y);
             }
         }
         print2D(egrid);
-        System.out.println("----------------------");
+        System.out.println("---------------");
     }
 
     // current picture
@@ -69,33 +71,38 @@ public class SeamCarver {
     // sequence of indices for vertical seam
     public int[] findVerticalSeam() {
         int[] ret = new int[height];
-        double[][] relax = new double[egrid.length][egrid[0].length];
+        double[][] relax = new double[width][height];
+        System.out.println("-------------------");
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (y == 0) {
                     relax[x][y] = BORDERENERGY;
-                } else if (x != width - 1) {
-                    relax[x][y] = egrid[x][y] + smallestOfThreeRelax(x, y);
+                } else {
+                    relax[x][y] = egrid[x][y] + smallestOfThreeRelax(x, y, relax);
                 }
             }
         }
+        System.out.println("-------------------");
         print2D(relax);
         double min = Double.POSITIVE_INFINITY;
         int startind = 0;
         for (int x = 0; x < width; x++) {
             if (relax[x][height - 1] < min) {
+
                 startind = x;
                 min = relax[x][height - 1];
             }
         }
-        ret[0] = startind;
+        ret[ret.length - 1] = startind; // first ind has to be top
         int curind = startind;
-        int retind = 1;
+        int retind = ret.length - 2;
         for (int y = height - 2; y >= 0; y--) {
             int nextind = smallestOfThreeVertSeam(curind, y, relax);
             ret[retind] = nextind;
-            retind++;
+            retind--;
+            curind = nextind;
         }
+        System.out.println(Arrays.toString(ret));
 
         // start from top to relax
         // go from bottom when finding seam
@@ -104,15 +111,15 @@ public class SeamCarver {
         return ret;
     }
 
-    private double smallestOfThreeRelax(int x, int y) {
+    private double smallestOfThreeRelax(int x, int y, double[][] relax) {
         double first;
         double second;
         double third;
-        if (inbounds(x - 1, y - 1)) first = egrid[x - 1][y - 1];
+        if (inbounds(x - 1, y - 1)) first = relax[x - 1][y - 1];
         else first = Double.MAX_VALUE;
-        if (inbounds(x, y - 1)) second = egrid[x][y - 1];
+        if (inbounds(x, y - 1)) second = relax[x][y - 1];
         else second = Double.MAX_VALUE;
-        if (inbounds(x + 1, y - 1)) third = egrid[x + 1][y - 1];
+        if (inbounds(x + 1, y - 1)) third = relax[x + 1][y - 1];
         else third = Double.MAX_VALUE;
 
         if (first <= second && first <= third) {
@@ -154,12 +161,18 @@ public class SeamCarver {
     }
 
     private void print2D(double[][] arr) {
-        for (int r = 0; r < arr.length; r++) {
-            for (int c = 0; c < arr[0].length; c++) {
-                System.out.print(arr[r][c] + " ");
+        for (int r = 0; r < arr[0].length; r++) {
+            for (int c = 0; c < arr.length; c++) {
+                System.out.print(arr[c][r] + " ");
             }
             System.out.println("");
         }
+    }
+
+    private Picture transpose(Picture picture) {
+        //create a new Picture object flipping the width and height
+        //copy over pic param to your new Pic object
+        return null;
     }
 
     private boolean inbounds(int x, int y) {
