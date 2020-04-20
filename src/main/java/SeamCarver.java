@@ -25,8 +25,7 @@ public class SeamCarver {
                 egrid[x][y] = energy(x, y);
             }
         }
-        print2D(egrid);
-        System.out.println("---------------");
+
     }
 
     // current picture
@@ -72,7 +71,6 @@ public class SeamCarver {
     public int[] findVerticalSeam() {
         int[] ret = new int[height];
         double[][] relax = new double[width][height];
-        System.out.println("-------------------");
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (y == 0) {
@@ -82,8 +80,7 @@ public class SeamCarver {
                 }
             }
         }
-        System.out.println("-------------------");
-        print2D(relax);
+
         double min = Double.POSITIVE_INFINITY;
         int startind = 0;
         for (int x = 0; x < width; x++) {
@@ -102,7 +99,6 @@ public class SeamCarver {
             retind--;
             curind = nextind;
         }
-        System.out.println(Arrays.toString(ret));
 
         // start from top to relax
         // go from bottom when finding seam
@@ -179,7 +175,59 @@ public class SeamCarver {
         return (x >= 0 && x < width && y >= 0 && y < height);
     }
 
+    private void checkVarying(int[] seam) {
+        int prev = seam[0];
+        for (int i = 1; i < seam.length; i++) {
+            if (Math.abs(seam[i] - prev) > 1) throw new IllegalArgumentException();
+            prev = seam[i];
+        }
+    }
+
     // remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
+        if (seam == null || height() <= 1 || seam.length != height()) {
+            throw new IllegalArgumentException();
+        }
+        checkVarying(seam);
+
+        Picture picture = new Picture(width - 1, height);
+        double[][] newegrid = new double[width - 1][height];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < picture.width(); x++) {
+                if (x < seam[y]) {
+                    picture.set(x, y, p.get(x, y));
+                    newegrid[x][y] = egrid[x][y];
+                } else {
+                    picture.set(x, y, p.get(x + 1, y));
+                    newegrid[x][y] = egrid[x + 1][y];
+                }
+            }
+        }
+        width = width - 1;
+        p = picture;
+        egrid = newegrid;
+
+        for (int y = 1; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (x == seam[y] + 1) {
+                    egrid[x][y] = energy(x, y);
+                    fillEnergies(x, y);
+                } else if (x == 0 && x == seam[y]) {
+                    egrid[x][y] = BORDERENERGY;
+                }
+            }
+
+        }
+    }
+
+    private void fillEnergies(int x, int y) {
+        int[] DX = {1, 0, 0, -1};
+        int[] DY = {0, 1, -1, 0};
+        for (int i = 0; i < DX.length; i++) {
+            int nx = x + DX[i];
+            int ny = y + DY[i];
+            if (!inbounds(nx, ny)) continue;
+            egrid[nx][ny] = energy(nx, ny);
+        }
     }
 }
