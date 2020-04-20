@@ -1,18 +1,30 @@
+import com.sun.security.jgss.GSSUtil;
 import edu.princeton.cs.algs4.Picture;
+
+import java.util.Arrays;
 
 public class SeamCarver {
     private Picture p;
     private int width;
     private int height;
+    private double[][] egrid;
     private final int BORDERENERGY = 1000;
 
-    //create a seam carver object based on the given picture
+    // create a seam carver object based on the given picture
     // x= col y = row
     // 0,0 is upper left corner
     public SeamCarver(Picture picture) {
         p = picture;
         width = p.width();
         height = p.height();
+        egrid = new double[width][height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                egrid[x][y] = energy(x, y);
+            }
+        }
+        print2D(egrid);
+        System.out.println("----------------------");
     }
 
     // current picture
@@ -37,17 +49,15 @@ public class SeamCarver {
 
         if (x == 0 || x == width - 1 || y == 0 || y == height - 1) return BORDERENERGY;
         int energy = 0;
-        int[] DX = {1, 0, 0, -1};
-        int[] DY = {0, 1, -1, 0};
-        for (int i = 0; i < DX.length; i++) {
-            int nx = x + DX[i];
-            int ny = y + DY[i];
-            if (!inbounds(nx, ny)) continue;
-            int r = Math.abs(p.get(x, y).getRed() - p.get(nx, ny).getRed());
-            int g = Math.abs(p.get(x, y).getBlue() - p.get(nx, ny).getBlue());
-            int b = Math.abs(p.get(x, y).getGreen() - p.get(nx, ny).getGreen());
-            energy += (r * r) + (b * b) + (g * g);
-        }
+        int r = p.get(x - 1, y).getRed() - p.get(x + 1, y).getRed();
+        int g = p.get(x - 1, y).getBlue() - p.get(x + 1, y).getBlue();
+        int b = p.get(x - 1, y).getGreen() - p.get(x + 1, y).getGreen();
+        energy += Math.pow(r, 2) + Math.pow(b, 2) + Math.pow(g, 2);
+        r = p.get(x, y - 1).getRed() - p.get(x, y + 1).getRed();
+        g = p.get(x, y - 1).getBlue() - p.get(x, y + 1).getBlue();
+        b = p.get(x, y - 1).getGreen() - p.get(x, y + 1).getGreen();
+        energy += Math.pow(r, 2) + Math.pow(b, 2) + Math.pow(g, 2);
+
         return Math.sqrt(energy);
     }
 
@@ -58,12 +68,98 @@ public class SeamCarver {
 
     // sequence of indices for vertical seam
     public int[] findVerticalSeam() {
-        return null;
+        int[] ret = new int[height];
+        double[][] relax = new double[egrid.length][egrid[0].length];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (y == 0) {
+                    relax[x][y] = BORDERENERGY;
+                } else if (x != width - 1) {
+                    relax[x][y] = egrid[x][y] + smallestOfThreeRelax(x, y);
+                }
+            }
+        }
+        print2D(relax);
+        double min = Double.POSITIVE_INFINITY;
+        int startind = 0;
+        for (int x = 0; x < width; x++) {
+            if (relax[x][height - 1] < min) {
+                startind = x;
+                min = relax[x][height - 1];
+            }
+        }
+        ret[0] = startind;
+        int curind = startind;
+        int retind = 1;
+        for (int y = height - 2; y >= 0; y--) {
+            int nextind = smallestOfThreeVertSeam(curind, y, relax);
+            ret[retind] = nextind;
+            retind++;
+        }
+
+        // start from top to relax
+        // go from bottom when finding seam
+
+
+        return ret;
+    }
+
+    private double smallestOfThreeRelax(int x, int y) {
+        double first;
+        double second;
+        double third;
+        if (inbounds(x - 1, y - 1)) first = egrid[x - 1][y - 1];
+        else first = Double.MAX_VALUE;
+        if (inbounds(x, y - 1)) second = egrid[x][y - 1];
+        else second = Double.MAX_VALUE;
+        if (inbounds(x + 1, y - 1)) third = egrid[x + 1][y - 1];
+        else third = Double.MAX_VALUE;
+
+        if (first <= second && first <= third) {
+            return first;
+        } else if (second <= first && second <= third) {
+            return second;
+        } else if (third <= first && third <= second) {
+            return third;
+        } else {
+            throw new IllegalStateException("smallestOfThree method doesn't work");
+        }
+    }
+
+    private int smallestOfThreeVertSeam(int x, int y, double[][] relax) {
+        double first;
+        double second;
+        double third;
+        if (inbounds(x - 1, y)) first = relax[x - 1][y];
+        else first = Double.MAX_VALUE;
+        if (inbounds(x, y)) second = relax[x][y];
+        else second = Double.MAX_VALUE;
+        if (inbounds(x + 1, y)) third = relax[x + 1][y];
+        else third = Double.MAX_VALUE;
+
+        if (first <= second && first <= third) {
+            return x - 1;
+        } else if (second <= first && second <= third) {
+            return x;
+        } else if (third <= first && third <= second) {
+            return x + 1;
+        } else {
+            throw new IllegalStateException("smallestOfThree method doesn't work");
+        }
     }
 
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
 
+    }
+
+    private void print2D(double[][] arr) {
+        for (int r = 0; r < arr.length; r++) {
+            for (int c = 0; c < arr[0].length; c++) {
+                System.out.print(arr[r][c] + " ");
+            }
+            System.out.println("");
+        }
     }
 
     private boolean inbounds(int x, int y) {
@@ -72,6 +168,5 @@ public class SeamCarver {
 
     // remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
-
     }
 }
