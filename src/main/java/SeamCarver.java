@@ -1,6 +1,7 @@
 import edu.princeton.cs.algs4.Picture;
 
 
+
 public class SeamCarver {
     private Picture p;
     private int width;
@@ -14,6 +15,7 @@ public class SeamCarver {
     // x= col y = row
     // 0,0 is upper left corner
     public SeamCarver(Picture picture) {
+        if (picture == null) throw new IllegalArgumentException();
         p = picture;
         width = p.width();
         height = p.height();
@@ -62,12 +64,15 @@ public class SeamCarver {
 
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
-        if (!isTransposed){
+        System.out.println(p.getRGB(1,2));
+        if (!isTransposed) {
             p = transpose(p);
             isTransposed = true;
         }
+
         Horiz = true;
         int[] ret = findVerticalSeam();
+
         Horiz = false;
         return ret;
     }
@@ -76,6 +81,7 @@ public class SeamCarver {
     public int[] findVerticalSeam() {
         if (isTransposed && !Horiz) {
             p = transpose(p);
+            System.out.println("WHAT");
             isTransposed = false;
         }
         int[] ret = new int[height];
@@ -85,7 +91,7 @@ public class SeamCarver {
                 if (y == 0) {
                     relax[x][y] = BORDERENERGY;
                 } else {
-                    relax[x][y] = egrid[x][y] + smallestOfThreeRelax(x, y, relax);
+                   relax[x][y] = egrid[x][y] + smallestOfThreeRelax(x, y, relax);
                 }
             }
         }
@@ -184,9 +190,11 @@ public class SeamCarver {
         Picture ret = new Picture(height, width);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                ret.set(y, x, p.get(x, y));
+                ret.setRGB(y, x, picture.getRGB(x, y));
             }
         }
+        width = ret.width();
+        height = ret.height();
         return ret;
     }
 

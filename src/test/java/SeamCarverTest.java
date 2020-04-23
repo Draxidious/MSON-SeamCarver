@@ -29,14 +29,6 @@ public class SeamCarverTest {
   }
 
   @Test
-  public void testPictureDefensiveCopy() {
-    Picture picture = new Picture("seam-test-files/6x5.png");
-    SeamCarver sc6x5 = new SeamCarver(picture);
-    picture.setRGB(0, 0, 0);
-    assertNotEquals(sc6x5.picture(), picture);
-  }
-
-  @Test
   public void testWidth() {
     assertEquals(sc6x5.width(), 6);
   }
