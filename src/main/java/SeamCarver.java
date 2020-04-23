@@ -1,8 +1,5 @@
-import com.sun.security.jgss.GSSUtil;
 import edu.princeton.cs.algs4.Picture;
 
-import java.util.Arrays;
-import java.util.jar.JarOutputStream;
 
 public class SeamCarver {
     private Picture p;
@@ -11,6 +8,7 @@ public class SeamCarver {
     private double[][] egrid;
     private final int BORDERENERGY = 1000;
     private boolean isTransposed;
+    private boolean Horiz;
 
     // create a seam carver object based on the given picture
     // x= col y = row
@@ -64,11 +62,22 @@ public class SeamCarver {
 
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
-        return null;
+        if (!isTransposed){
+            p = transpose(p);
+            isTransposed = true;
+        }
+        Horiz = true;
+        int[] ret = findVerticalSeam();
+        Horiz = false;
+        return ret;
     }
 
     // sequence of indices for vertical seam
     public int[] findVerticalSeam() {
+        if (isTransposed && !Horiz) {
+            p = transpose(p);
+            isTransposed = false;
+        }
         int[] ret = new int[height];
         double[][] relax = new double[width][height];
         for (int y = 0; y < height; y++) {
@@ -153,7 +162,13 @@ public class SeamCarver {
 
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
-
+        if (!isTransposed) {
+            p = transpose(p);
+            isTransposed = true;
+        }
+        Horiz = true;
+        removeVerticalSeam(seam);
+        Horiz = false;
     }
 
     private void print2D(double[][] arr) {
@@ -166,9 +181,13 @@ public class SeamCarver {
     }
 
     private Picture transpose(Picture picture) {
-        //create a new Picture object flipping the width and height
-        //copy over pic param to your new Pic object
-        return null;
+        Picture ret = new Picture(height, width);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                ret.set(y, x, p.get(x, y));
+            }
+        }
+        return ret;
     }
 
     private boolean inbounds(int x, int y) {
@@ -219,6 +238,7 @@ public class SeamCarver {
 
         }
     }
+
 
     private void fillEnergies(int x, int y) {
         int[] DX = {1, 0, 0, -1};
