@@ -1,12 +1,11 @@
 import edu.princeton.cs.algs4.Picture;
 
 
-
 public class SeamCarver {
     private Picture p;
     private int width;
     private int height;
-    private double[][] egrid;
+
     private final int BORDERENERGY = 1000;
     private boolean isTransposed;
     private boolean Horiz;
@@ -19,13 +18,18 @@ public class SeamCarver {
         p = picture;
         width = p.width();
         height = p.height();
-        egrid = new double[width][height];
+
+
+    }
+
+    private double[][] newEgrid() {
+        double[][] egrid = new double[width][height];
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 egrid[x][y] = energy(x, y);
             }
         }
-
+        return egrid;
     }
 
     // current picture
@@ -64,7 +68,7 @@ public class SeamCarver {
 
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
-        System.out.println(p.getRGB(1,2));
+        System.out.println(p.getRGB(1, 2));
         if (!isTransposed) {
             p = transpose(p);
             isTransposed = true;
@@ -86,12 +90,13 @@ public class SeamCarver {
         }
         int[] ret = new int[height];
         double[][] relax = new double[width][height];
+        double[][] egrid = newEgrid();
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (y == 0) {
                     relax[x][y] = BORDERENERGY;
                 } else {
-                   relax[x][y] = egrid[x][y] + smallestOfThreeRelax(x, y, relax);
+                    relax[x][y] = egrid[x][y] + smallestOfThreeRelax(x, y, relax);
                 }
             }
         }
@@ -218,44 +223,18 @@ public class SeamCarver {
         checkVarying(seam);
 
         Picture picture = new Picture(width - 1, height);
-        double[][] newegrid = new double[width - 1][height];
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < picture.width(); x++) {
                 if (x < seam[y]) {
                     picture.set(x, y, p.get(x, y));
-                    newegrid[x][y] = egrid[x][y];
                 } else {
                     picture.set(x, y, p.get(x + 1, y));
-                    newegrid[x][y] = egrid[x + 1][y];
                 }
             }
         }
         width = width - 1;
         p = picture;
-        egrid = newegrid;
-
-        for (int y = 1; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                if (x == seam[y] + 1) {
-                    egrid[x][y] = energy(x, y);
-                    fillEnergies(x, y);
-                } else if (x == 0 && x == seam[y]) {
-                    egrid[x][y] = BORDERENERGY;
-                }
-            }
-
-        }
     }
 
 
-    private void fillEnergies(int x, int y) {
-        int[] DX = {1, 0, 0, -1};
-        int[] DY = {0, 1, -1, 0};
-        for (int i = 0; i < DX.length; i++) {
-            int nx = x + DX[i];
-            int ny = y + DY[i];
-            if (!inbounds(nx, ny)) continue;
-            egrid[nx][ny] = energy(nx, ny);
-        }
-    }
 }
