@@ -68,7 +68,6 @@ public class SeamCarver {
 
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
-        System.out.println(p.getRGB(1, 2));
         if (!isTransposed) {
             p = transpose(p);
             isTransposed = true;
@@ -85,7 +84,6 @@ public class SeamCarver {
     public int[] findVerticalSeam() {
         if (isTransposed && !Horiz) {
             p = transpose(p);
-            System.out.println("WHAT");
             isTransposed = false;
         }
         int[] ret = new int[height];

@@ -16,10 +16,9 @@ public class SeamCarverTest {
     sc6x5 = new SeamCarver(picture);
   }
 
-  @Test 
+  @Test(expected = IllegalArgumentException.class)
   public void testSeamCarver() {
-    //TODO test for IllegalArgumentException if passed in null picture
-    fail("Not yet implemented");
+    SeamCarver p = new SeamCarver(null);
   }
 
   @Test
@@ -68,7 +67,13 @@ public class SeamCarverTest {
       assertEquals(expected[i], actual[i]);
     }
   }
-
+  @Test
+  public void testFindHorizontalSeamSmall()
+  {
+    Picture p  = new Picture("seam-test-files/1x8.png");
+    SeamCarver sc8x1 = new SeamCarver(picture);
+    sc8x1.findHorizontalSeam();
+  }
   //TODO: write testFindVerticalSeam test cases for two other input files (one small, one large)
 
   @Test
@@ -124,13 +129,13 @@ public class SeamCarverTest {
   @Test
   public void testRemoveHorizontalSeamCheckPixelColors() {
     //TODO write testRemoveHoriztonalCheckPixelColors using sc6x5
-    fail("Not yet implemented");
+
   }
   
   @Test
   public void testRemoveHorizontalSeamCheckEnergies() {
     //TODO write testRemoveHoriztonalCheckEnergies using sc6x5
-    fail("Not yet implemented");
+
   }
 
   //TODO: write testRemoveHorizontalSeam test cases for two other input files (one small, one large)
