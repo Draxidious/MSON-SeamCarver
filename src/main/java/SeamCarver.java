@@ -68,24 +68,13 @@ public class SeamCarver {
 
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
-        if (!isTransposed) {
-            p = transpose(p);
-            isTransposed = true;
-        }
-
-        Horiz = true;
-        int[] ret = findVerticalSeam();
-
-        Horiz = false;
-        return ret;
+        p = transpose(p);
+        isTransposed = true;
+        return findVerticalSeam();
     }
 
     // sequence of indices for vertical seam
     public int[] findVerticalSeam() {
-        if (isTransposed && !Horiz) {
-            p = transpose(p);
-            isTransposed = false;
-        }
         int[] ret = new int[height];
         double[][] relax = new double[width][height];
         double[][] egrid = newEgrid();
@@ -121,7 +110,10 @@ public class SeamCarver {
         // start from top to relax
         // go from bottom when finding seam
 
-
+        if (isTransposed) {
+            p = transpose(p);
+            isTransposed = false;
+        }
         return ret;
     }
 
@@ -174,10 +166,9 @@ public class SeamCarver {
         if (seam == null || height() <= 1 || seam.length != height()) {
             throw new IllegalArgumentException();
         }
-        if (!isTransposed) {
-            p = transpose(p);
-            isTransposed = true;
-        }
+        p = transpose(p);
+        isTransposed = true;
+
         Horiz = true;
         removeVerticalSeam(seam);
         Horiz = false;
@@ -235,6 +226,11 @@ public class SeamCarver {
         }
         width = width - 1;
         p = picture;
+
+        if (isTransposed) {
+            p = transpose(p);
+            isTransposed = false;
+        }
     }
 
 
