@@ -218,7 +218,7 @@ public class SeamCarver {
 
     // remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
-        if (!Horiz && seam == null || width() <= 1 || seam.length != height()) {
+        if (!Horiz && (seam == null || width() <= 1 || seam.length != height())) {
             throw new IllegalArgumentException();
         }
         checkVarying(seam);
