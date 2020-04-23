@@ -171,6 +171,9 @@ public class SeamCarver {
 
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
+        if (seam == null || height() <= 1 || seam.length != height()) {
+            throw new IllegalArgumentException();
+        }
         if (!isTransposed) {
             p = transpose(p);
             isTransposed = true;
@@ -215,7 +218,7 @@ public class SeamCarver {
 
     // remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
-        if (seam == null || height() <= 1 || seam.length != height()) {
+        if (!Horiz && seam == null || width() <= 1 || seam.length != height()) {
             throw new IllegalArgumentException();
         }
         checkVarying(seam);
