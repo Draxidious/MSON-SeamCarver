@@ -204,7 +204,7 @@ public class SeamCarver {
     private void checkVarying(int[] seam) {
         int prev = seam[0];
         for (int i = 1; i < seam.length; i++) {
-            if (seam[i] >= width) throw new IllegalArgumentException();
+            if (seam[i] >= width || seam[i] < 0) throw new IllegalArgumentException();
             if (Math.abs(seam[i] - prev) > 1) throw new IllegalArgumentException();
             prev = seam[i];
         }
