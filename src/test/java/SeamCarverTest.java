@@ -83,6 +83,7 @@ public class SeamCarverTest {
     for(int i = 0; i < sc6x5.width(); i++) {
       assertEquals(expected[i], actual[i]);
     }
+    sc6x5.removeHorizontalSeam(actual);
   }
 
   //TODO: write testFindHorizontalSeam test cases for two other input files (one small, one large)
