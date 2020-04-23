@@ -32,6 +32,13 @@ public class SeamCarverTest {
     assertEquals(sc6x5.width(), 6);
   }
 
+  @Test
+  public void testWidth1() {
+
+    assertEquals(sc6x5.width(), 6);
+  }
+
+
   //TODO: write testWidth test cases for two other input files (one small, one large)
 
 
