@@ -171,7 +171,7 @@ public class SeamCarver {
 
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
-        if (seam == null || height() <= 1 || seam.length != height()) {
+        if (seam == null || height() <= 1 || seam.length != width()) {
             throw new IllegalArgumentException();
         }
         if (!isTransposed) {
