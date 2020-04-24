@@ -15,7 +15,7 @@ public class SeamCarver {
     // 0,0 is upper left corner
     public SeamCarver(Picture picture) {
         if (picture == null) throw new IllegalArgumentException();
-        p = picture;
+        p = new Picture(picture);
         width = p.width();
         height = p.height();
 
@@ -34,7 +34,7 @@ public class SeamCarver {
 
     // current picture
     public Picture picture() {
-        return p;
+        return new Picture(p);
     }
 
     // width of current picture
@@ -200,8 +200,10 @@ public class SeamCarver {
     }
 
     private void checkVarying(int[] seam) {
+        if (seam[0] >= width || seam[0] < 0) throw new IllegalArgumentException();
         int prev = seam[0];
         for (int i = 1; i < seam.length; i++) {
+            if (seam[i] >= width || seam[i] < 0) throw new IllegalArgumentException();
             if (Math.abs(seam[i] - prev) > 1) throw new IllegalArgumentException();
             prev = seam[i];
         }
@@ -209,7 +211,7 @@ public class SeamCarver {
 
     // remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
-        if (!Horiz && seam == null || width() <= 1 || seam.length != height()) {
+        if (!Horiz && (seam == null || width() <= 1 || seam.length != height())) {
             throw new IllegalArgumentException();
         }
         checkVarying(seam);
